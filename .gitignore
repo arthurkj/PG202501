@@ -1,32 +1,33 @@
-# Prerequisites
-*.d
+# Ignorar a pasta de build e arquivos temporários do CMake
+/build/
+/CMakeCache.txt
+/CMakeFiles/
+/Makefile
+/cmake_install.cmake
 
-# Compiled Object files
-*.slo
-*.lo
+# Ignorar arquivos de saída do compilador (objetos e executáveis)
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
 *.exe
 *.out
-*.app
+*.a
+*.lib
+*.dll
+*.so
+
+# Ignorar dependências baixadas automaticamente pelo CMake (GLFW FetchContent)
+_build/
+_deps/
+glfw-src/
+glfw-build/
+
+# Ignorar configurações específicas do VSCode
+.vscode/
+CMakeUserPresets.json
+
+# Ignorar logs e arquivos de sistema
+*.log
+.DS_Store
+Thumbs.db
+
+
