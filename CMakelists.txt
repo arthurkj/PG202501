@@ -38,6 +38,7 @@ set(EXERCISES
     HelloTransform
     SecondModuleTaskPart1
     SecondModuleTaskPart2
+    ThirdModuleTask
 )
 
 add_compile_options(-Wno-pragmas)
