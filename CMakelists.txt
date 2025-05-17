@@ -39,6 +39,8 @@ set(EXERCISES
     SecondModuleTaskPart1
     SecondModuleTaskPart2
     ThirdModuleTask
+    InPersonSecondModuleTask
+    AtividadeVivencial
 )
 
 add_compile_options(-Wno-pragmas)
