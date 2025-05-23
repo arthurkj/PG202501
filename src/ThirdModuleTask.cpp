@@ -91,7 +91,7 @@ int points = 0;
 // Função MAIN
 int main()
 {
-    srand(glfwGetTime());
+    srand(time(0));
 
     // Inicialização da GLFW
     glfwInit();
