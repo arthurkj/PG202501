@@ -27,6 +27,7 @@
 #include <string>
 #include <assert.h>
 #include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -40,16 +41,32 @@ using namespace std;
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+// GLM
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+using namespace glm;
+
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
 
+struct Sprite
+{
+	vec3 position;
+	vec3 dimensions;
+	GLuint vao;
+	GLuint textId;
+};
+
 // Protótipos das funções
 int setupShader();
-int setupSprite();
+int createSpriteVAO();
+Sprite createSprite(vec3 position, vec3 dimensions, GLuint textId);
 int loadTexture(string filePath);
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
-const GLuint WIDTH = 800, HEIGHT = 800;
+const GLuint WIDTH = 800, HEIGHT = 600;
 
 // Código fonte do Vertex Shader (em GLSL): ainda hardcoded
 const GLchar *vertexShaderSource = R"(
@@ -57,10 +74,12 @@ const GLchar *vertexShaderSource = R"(
  layout (location = 0) in vec3 position;
  layout (location = 1) in vec2 texc;
  out vec2 tex_coord;
+ uniform mat4 projection;
+ uniform mat4 model;
  void main()
  {
-	tex_coord = vec2(texc.s, 1.0 - texc.t);
-	gl_Position = vec4(position, 1.0);
+	tex_coord = texc;
+	gl_Position = projection * model * vec4(position.x, position.y, position.z, 1.0);
  }
  )";
 
@@ -87,9 +106,9 @@ int main()
 	// Sugestão: comente essas linhas de código para desobrir a versão e
 	// depois atualize (por exemplo: 4.5 com 4 e 5)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Ativa a suavização de serrilhado (MSAA) com 8 amostras por pixel
 	glfwWindowHint(GLFW_SAMPLES, 8);
@@ -133,11 +152,11 @@ int main()
 	// Compilando e buildando o programa de shader
 	GLuint shaderID = setupShader();
 
-	// Gerando um buffer simples, com a geometria de um triângulo
-	GLuint VAO = setupSprite();
+	vector<Sprite> sprites;
 
-	//Carregando uma textura 
-	GLuint texID = loadTexture("../assets/sprites/Vampirinho.png");
+	sprites.push_back(createSprite(vec3(400, 300, 0.0), vec3(800, 600, 1), loadTexture("../assets/sprites/fundo.jpeg")));
+
+	// sprites.push_back(createSprite(vec3(400.0, 300.0, 0.0), vec3(300, 300, 1), loadTexture("../assets/sprites/Vampirinho.png")));
 
 	glUseProgram(shaderID); // Reseta o estado do shader para evitar problemas futuros
 
@@ -150,10 +169,13 @@ int main()
 	glUniform1i(glGetUniformLocation(shaderID, "tex_buff"), 0);
 
 	glEnable(GL_DEPTH_TEST); // Habilita o teste de profundidade
-	glDepthFunc(GL_ALWAYS); // Testa a cada ciclo
+	glDepthFunc(GL_ALWAYS);	 // Testa a cada ciclo
 
-	glEnable(GL_BLEND); //Habilita a transparência -- canal alpha
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Seta função de transparência
+	glEnable(GL_BLEND);								   // Habilita a transparência -- canal alpha
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Seta função de transparência
+
+	mat4 projection = ortho(0.0, 800.0, 600.0, 0.0, -1.0, 1.0);
+	glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, value_ptr(projection));
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -168,18 +190,31 @@ int main()
 		glLineWidth(10);
 		glPointSize(20);
 
-		glBindVertexArray(VAO); // Conectando ao buffer de geometria
-		glBindTexture(GL_TEXTURE_2D, texID); // Conectando ao buffer de textura
+		for (Sprite &sprite : sprites)
+		{
+			// Matriz de modelo: transformações na geometria (objeto)
+			mat4 model = mat4(1); // matriz identidade
+			// Translação
+			model = translate(model, sprite.position);
 
-		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			// Escala
+			model = scale(model, sprite.dimensions);
+			glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, value_ptr(model));
+
+			glBindVertexArray(sprite.vao);				 // Conectando ao buffer de geometria
+			glBindTexture(GL_TEXTURE_2D, sprite.textId); // Conectando ao buffer de textura
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		}
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
 	}
 	// Pede pra OpenGL desalocar os buffers
-	glDeleteVertexArrays(1, &VAO);
+	for (Sprite &sprite : sprites)
+	{
+		glDeleteVertexArrays(1, &sprite.vao);
+	}
+
 	// Finaliza a execução da GLFW, limpando os recursos alocados por ela
 	glfwTerminate();
 	return 0;
@@ -251,7 +286,7 @@ int setupShader()
 // Apenas atributo coordenada nos vértices
 // 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
 // A função retorna o identificador do VAO
-int setupSprite()
+int createSpriteVAO()
 {
 	// Aqui setamos as coordenadas x, y e z do triângulo e as armazenamos de forma
 	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
@@ -259,11 +294,11 @@ int setupSprite()
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 	GLfloat vertices[] = {
 		// x   y    z    s     t
-		-0.5,  0.5, 0.0, 0.0, 1.0, //V0
-		-0.5, -0.5, 0.0, 0.0, 0.0, //V1
-		 0.5,  0.5, 0.0, 1.0, 1.0, //V2
-		 0.5, -0.5, 0.0, 1.0, 0.0  //V3
-		};
+		-0.5, 0.5, 0.0, 0.0, 1.0,  // V0 (superior esquerdo)
+		-0.5, -0.5, 0.0, 0.0, 0.0, // V1 (inferior esquerdo)
+		0.5, 0.5, 0.0, 1.0, 1.0,   // V2 (superior direito)
+		0.5, -0.5, 0.0, 1.0, 0.0   // V3 (inferior direito)
+	};
 
 	GLuint VBO, VAO;
 	// Geração do identificador do VBO
@@ -344,4 +379,16 @@ int loadTexture(string filePath)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return texID;
+}
+
+Sprite createSprite(vec3 position, vec3 dimensions, GLuint textId)
+{
+	Sprite sprite;
+
+	sprite.position = position;
+	sprite.dimensions = dimensions;
+	sprite.vao = createSpriteVAO();
+	sprite.textId = textId;
+
+	return sprite;
 }
