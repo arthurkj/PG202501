@@ -51,6 +51,7 @@ set(EXERCISES
     InPersonSecondModuleTask
     HelloTexture
     HelloSprite
+    InPersonFourthModuleTask
 )
 
 add_compile_options(-Wno-pragmas)
