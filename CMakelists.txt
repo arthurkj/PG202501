@@ -50,7 +50,7 @@ set(EXERCISES
     ThirdModuleTask
     InPersonSecondModuleTask
     HelloTexture
-    HelloSprite
+    FourthModuleTask
     InPersonFourthModuleTask
 )
 

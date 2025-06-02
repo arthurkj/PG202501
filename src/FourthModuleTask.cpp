@@ -154,10 +154,14 @@ int main()
 
 	vector<Sprite> sprites;
 
-	sprites.push_back(createSprite(vec3(400, 300, 0.0), vec3(800, 600, 1), loadTexture("../assets/sprites/fundo.jpeg")));
-
-	// sprites.push_back(createSprite(vec3(400.0, 300.0, 0.0), vec3(300, 300, 1), loadTexture("../assets/sprites/Vampirinho.png")));
-
+	sprites.push_back(createSprite(vec3(400, 300, 0.0), vec3(800, 600, 1), loadTexture("../assets/sprites/sky2.png")));
+	sprites.push_back(createSprite(vec3(400, 300, 0.0), vec3(800, 600, 1), loadTexture("../assets/sprites/waterfall.png")));
+	sprites.push_back(createSprite(vec3(150, 95, 0.0), vec3(100, 100, 1), loadTexture("../assets/sprites/moon.png")));
+	sprites.push_back(createSprite(vec3(600, 75, 0.0), vec3(400, 300, 1), loadTexture("../assets/sprites/birds.png")));
+	sprites.push_back(createSprite(vec3(300, 85, 0.0), vec3(400, 300, 1), loadTexture("../assets/sprites/birds.png")));
+	sprites.push_back(createSprite(vec3(300, 400, 0.0), vec3(200, 200, 1), loadTexture("../assets/sprites/boat.png")));
+	sprites.push_back(createSprite(vec3(600, 400, 0.0), vec3(150, 100, 1), loadTexture("../assets/sprites/dolphin.png")));
+	
 	glUseProgram(shaderID); // Reseta o estado do shader para evitar problemas futuros
 
 	float colorValue = 0.0;
