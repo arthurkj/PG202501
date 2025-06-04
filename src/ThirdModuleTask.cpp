@@ -37,7 +37,8 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 GLuint createSquare();
 int setupShader();
 void eliminatesSimilar();
-void closeGame(GLFWwindow *window);
+void createGame();
+void restartGame();
 
 // Cálculos
 float calculateDistance(vec3 keyColor, vec3 otherColor);
@@ -140,28 +141,7 @@ int main()
 
     GLuint VAO = createSquare();
 
-    for (int i = 0; i < ROWS; i++)
-    {
-        for (int j = 0; j < COLS; j++)
-        {
-            Square square;
-
-            vec iniPos = vec2(SQUARE_WIDTH / 2, SQUARE_HEIGHT / 2);
-
-            square.position = vec3(iniPos.x + j * SQUARE_WIDTH, iniPos.y + i * SQUARE_HEIGHT, 0.0);
-            square.dimensions = vec3(SQUARE_WIDTH, SQUARE_HEIGHT, 1.0);
-
-            float r, g, b;
-            r = rand() % 256 / 255.0;
-            g = rand() % 256 / 255.0;
-            b = rand() % 256 / 255.0;
-            square.color = vec3(r, g, b);
-
-            square.isClicked = false;
-
-            grid[i][j] = square;
-        }
-    }
+    createGame();
 
     glUseProgram(shaderID);
 
@@ -190,9 +170,9 @@ int main()
 
         glBindVertexArray(VAO); // Conectando ao buffer de geometria
 
-        if (numberOfEliminated >= ROWS * COLS) {
-            closeGame(window);
-            break; 
+        if (numberOfEliminated >= ROWS * COLS)
+        {
+            restartGame();
         }
 
         for (int i = 0; i < ROWS; i++)
@@ -239,6 +219,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+
+    if (key == GLFW_KEY_R && action == GLFW_PRESS)
+        restartGame();
 }
 
 // Esta função está basntante hardcoded - objetivo é compilar e "buildar" um programa de
@@ -403,12 +386,37 @@ void eliminatesSimilar()
     colSelected = -1;
 }
 
-void closeGame(GLFWwindow *window)
-{
-    glfwSetWindowShouldClose(window, true);
-    glfwDestroyWindow(window);
-    glfwTerminate();
+void createGame() {
+    cout << "Iniciando novo jogo..." << endl;
+    numberOfEliminated = 0;
+    points = 0;
 
-    cout << "Jogo encerrado!"<< endl;
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j++)
+        {
+            Square square;
+
+            vec iniPos = vec2(SQUARE_WIDTH / 2, SQUARE_HEIGHT / 2);
+
+            square.position = vec3(iniPos.x + j * SQUARE_WIDTH, iniPos.y + i * SQUARE_HEIGHT, 0.0);
+            square.dimensions = vec3(SQUARE_WIDTH, SQUARE_HEIGHT, 1.0);
+
+            float r, g, b;
+            r = rand() % 256 / 255.0;
+            g = rand() % 256 / 255.0;
+            b = rand() % 256 / 255.0;
+            square.color = vec3(r, g, b);
+
+            square.isClicked = false;
+
+            grid[i][j] = square;
+        }
+    }
+}
+
+void restartGame() {
+    cout << "Jogo encerrado!" << endl;
     cout << "Pontuação: " << points << endl;
+    createGame();
 }
