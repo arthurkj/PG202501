@@ -52,6 +52,7 @@ set(EXERCISES
     HelloTexture
     FourthModuleTask
     InPersonFourthModuleTask
+    InPersonSixModuleTask
 )
 
 add_compile_options(-Wno-pragmas)
@@ -69,6 +70,9 @@ endif()
 
 # Caminho esperado para a GLAD
 set(GLAD_C_FILE "${CMAKE_SOURCE_DIR}/common/glad.c")
+
+# Caminho esperado para a gl_utils
+set(GL_UTILS_C_FILE "${CMAKE_SOURCE_DIR}/common/gl_utils.cpp")
 
 # Verifica se os arquivos da GLAD estão no lugar
 if (NOT EXISTS ${GLAD_C_FILE})
