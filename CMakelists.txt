@@ -52,7 +52,9 @@ set(EXERCISES
     HelloTexture
     FourthModuleTask
     InPersonFourthModuleTask
-    InPersonSixModuleTask
+    # InPersonSixModuleTask
+    HelloAnimatedSprite
+    FifthModuleTask
 )
 
 add_compile_options(-Wno-pragmas)
