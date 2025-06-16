@@ -21,3 +21,10 @@ Repositório para os trabalhos da disciplina Processamento Gráfico 2025/01
 
 ### Módulo 4 - Atividade Vivencial
 [InPersonFourthModuleTask.cpp](https://github.com/arthurkj/PG202501/blob/main/src/InPersonFourthModuleTask.cpp)
+
+### Módulo 5
+[FifthModuleTask.cpp](https://github.com/arthurkj/PG202501/blob/main/src/FifthModuleTask.cpp)
+
+### Módulo 6 - Atividade Vivencial
+[InPersonSixModuleTask.cpp](https://github.com/arthurkj/PG202501/blob/main/src/InPersonSixModuleTask.cpp)
+
