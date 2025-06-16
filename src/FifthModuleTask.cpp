@@ -1,28 +1,3 @@
-/*
- * Hello Triangle - Código adaptado de:
- *   - https://learnopengl.com/#!Getting-started/Hello-Triangle
- *   - https://antongerdelan.net/opengl/glcontext2.html
- *
- * Adaptado por: Rossana Baptista Queiroz
- *
- * Disciplinas:
- *   - Processamento Gráfico (Ciência da Computação - Híbrido)
- *   - Processamento Gráfico: Fundamentos (Ciência da Computação - Presencial)
- *   - Fundamentos de Computação Gráfica (Jogos Digitais)
- *
- * Descrição:
- *   Este código é o "Olá Mundo" da Computação Gráfica, utilizando OpenGL Moderna.
- *   No pipeline programável, o desenvolvedor pode implementar as etapas de
- *   Processamento de Geometria e Processamento de Pixel utilizando shaders.
- *   Um programa de shader precisa ter, obrigatoriamente, um Vertex Shader e um Fragment Shader,
- *   enquanto outros shaders, como o de geometria, são opcionais.
- *
- * Histórico:
- *   - Versão inicial: 07/04/2017
- *   - Última atualização: 18/03/2025
- *
- */
-
 #include <iostream>
 #include <string>
 #include <assert.h>
@@ -40,27 +15,25 @@ using namespace std;
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-//GLM
-#include <glm/glm.hpp> 
+// GLM
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace glm;
-
 
 struct Sprite
 {
 	GLuint VAO;
 	GLuint texID;
 	vec3 position;
-	vec3 dimensions; //tamanho do frame
+	vec3 dimensions; // tamanho do frame
 	float ds, dt;
 	int iAnimation, iFrame;
 	int nAnimations, nFrames;
-
 };
 
-Sprite vampirao;
+Sprite principal;
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
@@ -126,7 +99,7 @@ int main()
 	// #endif
 
 	// Criação da janela GLFW
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! -- Rossana", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "M5 - Sprites -- Arthur Kist Juchem", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -159,27 +132,27 @@ int main()
 	// Compilando e buildando o programa de shader
 	GLuint shaderID = setupShader();
 
-	//Carregando uma textura 
+	// Carregando uma textura
 	int imgWidth, imgHeight;
-	GLuint texID = loadTexture("../assets/sprites/Vampires1_Walk_full.png",imgWidth,imgHeight);
+	GLuint texID = loadTexture("../assets/sprites/Vampires1_Walk_full.png", imgWidth, imgHeight);
 
 	// Gerando um buffer simples, com a geometria de um triângulo
-	vampirao.nAnimations = 4;
-	vampirao.nFrames = 6;
-	vampirao.VAO = setupSprite(vampirao.nAnimations,vampirao.nFrames,vampirao.ds,vampirao.dt);
-	vampirao.position = vec3(400.0, 150.0, 0.0);
-	vampirao.dimensions = vec3(imgWidth/vampirao.nFrames*4,imgHeight/vampirao.nAnimations*4,1.0);
-	vampirao.texID = texID;
-	vampirao.iAnimation = 1;
-	vampirao.iFrame = 0;
+	principal.nAnimations = 4;
+	principal.nFrames = 6;
+	principal.VAO = setupSprite(principal.nAnimations, principal.nFrames, principal.ds, principal.dt);
+	principal.position = vec3(400.0, 150.0, 0.0);
+	principal.dimensions = vec3(imgWidth / principal.nFrames * 2, imgHeight / principal.nAnimations * 2, 1.0);
+	principal.texID = texID;
+	principal.iAnimation = 1;
+	principal.iFrame = 0;
 
 	Sprite background;
 	background.nAnimations = 1;
 	background.nFrames = 1;
-	background.VAO = setupSprite(background.nAnimations,background.nFrames,background.ds,background.dt);
+	background.VAO = setupSprite(background.nAnimations, background.nFrames, background.ds, background.dt);
 	background.position = vec3(400.0, 300.0, 0.0);
-	background.texID = loadTexture("../assets/backgrounds/bg_pixelado.png",imgWidth,imgHeight);
-	background.dimensions = vec3(imgWidth/background.nFrames*0.5,imgHeight/background.nAnimations*0.5,1.0);
+	background.texID = loadTexture("../assets/backgrounds/background_forest.jpg", imgWidth, imgHeight);
+	background.dimensions = vec3(imgWidth / background.nFrames * 0.95, imgHeight / background.nAnimations * 0.95, 1.0);
 	background.iAnimation = 0;
 	background.iFrame = 0;
 
@@ -201,42 +174,20 @@ int main()
 	glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, value_ptr(projection));
 
 	glEnable(GL_DEPTH_TEST); // Habilita o teste de profundidade
-	glDepthFunc(GL_ALWAYS); // Testa a cada ciclo
+	glDepthFunc(GL_ALWAYS);	 // Testa a cada ciclo
 
-	glEnable(GL_BLEND); //Habilita a transparência -- canal alpha
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Seta função de transparência
-
+	glEnable(GL_BLEND);								   // Habilita a transparência -- canal alpha
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Seta função de transparência
 
 	double lastTime = 0.0;
 	double deltaT = 0.0;
 	double currTime = glfwGetTime();
 	double FPS = 12.0;
 
-
-	vec2 offsetTexBg = vec2(0.0,0.0);
+	vec2 offsetTexBg = vec2(0.0, 0.0);
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
 	{
-		// Este trecho de código é totalmente opcional: calcula e mostra a contagem do FPS na barra de título
-		{
-			double curr_s = glfwGetTime();		// Obtém o tempo atual.
-			double elapsed_s = curr_s - prev_s; // Calcula o tempo decorrido desde o último frame.
-			prev_s = curr_s;					// Atualiza o "tempo anterior" para o próximo frame.
-
-			// Exibe o FPS, mas não a cada frame, para evitar oscilações excessivas.
-			title_countdown_s -= elapsed_s;
-			if (title_countdown_s <= 0.0 && elapsed_s > 0.0)
-			{
-				double fps = 1.0 / elapsed_s; // Calcula o FPS com base no tempo decorrido.
-
-				// Cria uma string e define o FPS como título da janela.
-				char tmp[256];
-				sprintf(tmp, "Ola Triangulo! -- Rossana\tFPS %.2lf", fps);
-				glfwSetWindowTitle(window, tmp);
-
-				title_countdown_s = 0.1; // Reinicia o temporizador para atualizar o título periodicamente.
-			}
-		}
 
 		// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 		glfwPollEvents();
@@ -248,57 +199,52 @@ int main()
 		glLineWidth(10);
 		glPointSize(20);
 
-		currTime = glfwGetTime();
-		deltaT = currTime - lastTime;
-
-	    mat4 model = mat4(1); //matriz identidade
-		model = translate(model,background.position);
+		mat4 model = mat4(1); // matriz identidade
+		model = translate(model, background.position);
 		model = rotate(model, radians(0.0f), vec3(0.0, 0.0, 1.0));
-		model = scale(model,background.dimensions);
+		model = scale(model, background.dimensions);
 		glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, value_ptr(model));
 
 		offsetTexBg.s = background.iFrame * 0.01;
 		offsetTexBg.t = 0.0;
-		glUniform2f(glGetUniformLocation(shaderID, "offsetTex"),offsetTexBg.s, offsetTexBg.t);
+		glUniform2f(glGetUniformLocation(shaderID, "offsetTex"), offsetTexBg.s, offsetTexBg.t);
 
-        glBindVertexArray(background.VAO); // Conectando ao buffer de geometria
+		glBindVertexArray(background.VAO);				// Conectando ao buffer de geometria
 		glBindTexture(GL_TEXTURE_2D, background.texID); // Conectando ao buffer de textura
 
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-		//---------------------------------------------------------------------
-		// Desenho do vampirao
-		// Matriz de transformaçao do objeto - Matriz de modelo
-		model = mat4(1); //matriz identidade
-		model = translate(model,vampirao.position);
+		model = mat4(1);
+		model = translate(model, principal.position);
 		model = rotate(model, radians(0.0f), vec3(0.0, 0.0, 1.0));
-		model = scale(model,vampirao.dimensions);
+		model = scale(model, principal.dimensions);
 		glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, value_ptr(model));
 
 		vec2 offsetTex;
 
-		if (deltaT >= 1.0/FPS)
+		currTime = glfwGetTime();
+		deltaT = currTime - lastTime;
+
+		if (deltaT >= 1.0 / FPS)
 		{
-			vampirao.iFrame = (vampirao.iFrame + 1) % vampirao.nFrames; // incremento "circular"
+			principal.iFrame = (principal.iFrame + 1) % principal.nFrames; // incremento "circular"
 			lastTime = currTime;
 		}
 
-		offsetTex.s = vampirao.iFrame * vampirao.ds;
-		offsetTex.t = (vampirao.iAnimation) * vampirao.dt;
-		glUniform2f(glGetUniformLocation(shaderID, "offsetTex"),offsetTex.s, offsetTex.t);
+		offsetTex.s = principal.iFrame * principal.ds;
+		offsetTex.t = (principal.iAnimation) * principal.dt;
+		glUniform2f(glGetUniformLocation(shaderID, "offsetTex"), offsetTex.s, offsetTex.t);
 
-		glBindVertexArray(vampirao.VAO); // Conectando ao buffer de geometria
-		glBindTexture(GL_TEXTURE_2D, vampirao.texID); // Conectando ao buffer de textura
+		glBindVertexArray(principal.VAO);			   // Conectando ao buffer de geometria
+		glBindTexture(GL_TEXTURE_2D, principal.texID); // Conectando ao buffer de textura
 
-		// Chamada de desenho - drawcall
 		// Poligono Preenchido - GL_TRIANGLES
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		//---------------------------------------------------------------------------
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
 	}
-		
+
 	// Finaliza a execução da GLFW, limpando os recursos alocados por ela
 	glfwTerminate();
 	return 0;
@@ -307,35 +253,44 @@ int main()
 // Função de callback de teclado - só pode ter uma instância (deve ser estática se
 // estiver dentro de uma classe) - É chamada sempre que uma tecla for pressionada
 // ou solta via GLFW
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-    if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-        if (key == GLFW_KEY_LEFT || key == GLFW_KEY_A) {
-            vampirao.iAnimation = 3;
-            if (vampirao.position.x >= 0) {
-			    vampirao.position.x -= 10.0f; 
-            }            
-        }
-        if (key == GLFW_KEY_RIGHT || key == GLFW_KEY_D) {
-            vampirao.iAnimation = 4;
-            if (vampirao.position.x <= WIDTH) {
-                vampirao.position.x += 10.0f; 
-            }
-        }
+	if (action == GLFW_PRESS || action == GLFW_REPEAT)
+	{
+		if (key == GLFW_KEY_LEFT || key == GLFW_KEY_A)
+		{
+			principal.iAnimation = 3;
+			if (principal.position.x >= 0)
+			{
+				principal.position.x -= 10.0f;
+			}
+		}
+		if (key == GLFW_KEY_RIGHT || key == GLFW_KEY_D)
+		{
+			principal.iAnimation = 4;
+			if (principal.position.x <= WIDTH)
+			{
+				principal.position.x += 10.0f;
+			}
+		}
 
-         if (key == GLFW_KEY_UP || key == GLFW_KEY_A) {
-            vampirao.iAnimation = 2;
-            if (vampirao.position.y <= HEIGHT) {
-                vampirao.position.y += 10.0f; 
-            }
-        }
-        if (key == GLFW_KEY_DOWN || key == GLFW_KEY_D) {
-            vampirao.iAnimation = 1;
-            if (vampirao.position.y >= 0) {
-                vampirao.position.y -= 10.0f; 
-            }
-        }
-    }
+		if (key == GLFW_KEY_UP || key == GLFW_KEY_A)
+		{
+			principal.iAnimation = 2;
+			if (principal.position.y <= HEIGHT)
+			{
+				principal.position.y += 10.0f;
+			}
+		}
+		if (key == GLFW_KEY_DOWN || key == GLFW_KEY_D)
+		{
+			principal.iAnimation = 1;
+			if (principal.position.y >= 0)
+			{
+				principal.position.y -= 10.0f;
+			}
+		}
+	}
 }
 
 // Esta função está bastante hardcoded - objetivo é compilar e "buildar" um programa de
@@ -390,27 +345,18 @@ int setupShader()
 	return shaderProgram;
 }
 
-// Esta função está bastante harcoded - objetivo é criar os buffers que armazenam a
-// geometria de um triângulo
-// Apenas atributo coordenada nos vértices
-// 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
-// A função retorna o identificador do VAO
 int setupSprite(int nAnimations, int nFrames, float &ds, float &dt)
 {
 
-	ds = 1.0 / (float) nFrames;
-	dt = 1.0 / (float) nAnimations;
-	// Aqui setamos as coordenadas x, y e z do triângulo e as armazenamos de forma
-	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
-	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
-	// Pode ser arazenado em um VBO único ou em VBOs separados
+	ds = 1.0 / (float)nFrames;
+	dt = 1.0 / (float)nAnimations;
 	GLfloat vertices[] = {
 		// x   y    z    s     t
-		-0.5,  0.5, 0.0, 0.0, dt, //V0
-		-0.5, -0.5, 0.0, 0.0, 0.0, //V1
-		 0.5,  0.5, 0.0, ds, dt, //V2
-		 0.5, -0.5, 0.0, ds, 0.0  //V3
-		};
+		-0.5, 0.5, 0.0, 0.0, dt,   // V0
+		-0.5, -0.5, 0.0, 0.0, 0.0, // V1
+		0.5, 0.5, 0.0, ds, dt,	   // V2
+		0.5, -0.5, 0.0, ds, 0.0	   // V3
+	};
 
 	GLuint VBO, VAO;
 	// Geração do identificador do VBO
