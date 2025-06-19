@@ -52,7 +52,7 @@ set(EXERCISES
     HelloTexture
     FourthModuleTask
     InPersonFourthModuleTask
-    # InPersonSixModuleTask
+    InPersonSixModuleTask
     HelloAnimatedSprite
     FifthModuleTask
 )
