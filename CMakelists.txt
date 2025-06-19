@@ -55,6 +55,7 @@ set(EXERCISES
     InPersonSixModuleTask
     HelloAnimatedSprite
     FifthModuleTask
+    FinalTask
 )
 
 add_compile_options(-Wno-pragmas)
